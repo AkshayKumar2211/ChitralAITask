@@ -12,7 +12,7 @@ function required(name: string, fallback?: string): string {
 export const env = {
   PORT: parseInt(process.env.PORT || "5000", 10),
   NODE_ENV: process.env.NODE_ENV || "development",
-  CORS_ORIGIN: process.env.CORS_ORIGIN || "https://chitral-ai-frontend-ebon.vercel.app/jds",
+  CORS_ORIGIN: process.env.CORS_ORIGIN || "https://chitral-ai-frontend-ebon.vercel.app",
 
   DATABASE_URL: required("DATABASE_URL"),
 
