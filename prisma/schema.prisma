@@ -1,0 +1,86 @@
+// Chitralai – Resume Screening DB schema
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FileType {
+  PDF
+  DOC
+  DOCX
+}
+
+enum JdSource {
+  MANUAL
+  UPLOAD
+}
+
+model JobDescription {
+  id             String   @id @default(cuid())
+  title          String
+  content        String   @db.Text
+  requiredSkills String[] @default([])
+  minExperience  Int?
+  education      String?
+  source         JdSource @default(MANUAL)
+  fileUrl        String?
+  filePublicId   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  scores ScoreResult[]
+
+  @@index([createdAt])
+}
+
+model Resume {
+  id              String   @id @default(cuid())
+  candidateName   String?
+  email           String?
+  phone           String?
+  fileUrl         String
+  filePublicId    String
+  fileType        FileType
+  fileSizeBytes   Int?
+  rawText         String   @db.Text
+  parsedSkills    String[] @default([])
+  parsedExperience Int?
+  parsedEducation String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  scores ScoreResult[]
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+model ScoreResult {
+  id                String   @id @default(cuid())
+  score             Int
+  skillsScore       Int?
+  experienceScore   Int?
+  educationScore   Int?
+  keywordScore      Int?
+  matchingSkills    String[] @default([])
+  missingSkills     String[] @default([])
+  summary           String?  @db.Text
+  rank              Int?
+  createdAt         DateTime @default(now())
+
+  resumeId         String
+  resume           Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  jobDescriptionId String
+  jobDescription   JobDescription @relation(fields: [jobDescriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([resumeId, jobDescriptionId])
+  @@index([jobDescriptionId, score])
+  @@index([score])
+}
